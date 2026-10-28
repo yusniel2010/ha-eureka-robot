@@ -1,0 +1,141 @@
+{
+  "title": "Eureka Robot (Local)",
+  "config": {
+    "step": {
+      "user": {
+        "title": "Eureka Robot (Local)",
+        "menu_options": {
+          "scan": "Search local network",
+          "manual": "Enter IP manually"
+        }
+      },
+      "reconfigure": {
+        "title": "Change robot address",
+        "data": {
+          "host": "IP address or hostname"
+        }
+      },
+      "manual": {
+        "title": "Local connection",
+        "data": {
+          "host": "IP address or hostname"
+        }
+      },
+      "scan": {
+        "title": "Find vacuum",
+        "description": "Probe a private subnet, at most 256 addresses. Sends only status queries. For a different VLAN, enter its subnet or use manual IP.",
+        "data": {
+          "network": "IPv4 subnet (CIDR)"
+        }
+      },
+      "choose_device": {
+        "title": "Select vacuum",
+        "description": "A B8 response confirms protocol compatibility, not the model. Confirm that the selected device is your Eureka J15 Pro Ultra.",
+        "data": {
+          "host": "Discovered device",
+          "confirm_model": "I confirm this is my Eureka J15 Pro Ultra"
+        }
+      },
+      "no_devices": {
+        "title": "No new vacuums found",
+        "description": "Check the robot is powered on, the subnet is correct and HA can reach TCP port 12127. Try manual IP or scan again.",
+        "menu_options": {
+          "scan": "Search local network",
+          "manual": "Enter IP manually"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Cannot connect to robot.",
+      "invalid_host": "Enter an IP or hostname, without URL or port.",
+      "invalid_network": "Use a private IPv4 subnet of at most 256 addresses (/24 or smaller).",
+      "confirm_model": "Confirm the model before continuing."
+    },
+    "abort": {
+      "already_configured": "Robot already configured.",
+      "reconfigure_successful": "Robot address updated."
+    },
+    "progress": {
+      "scanning": "Searching local devices…"
+    }
+  },
+  "entity": {
+    "sensor": {
+      "battery": {
+        "name": "Battery"
+      },
+      "status": {
+        "name": "Status"
+      },
+      "station_status": {
+        "name": "Station status"
+      },
+      "cleaned_area": {
+        "name": "Cleaned area"
+      },
+      "clean_time": {
+        "name": "Clean time"
+      },
+      "robot_fault": {
+        "name": "Robot fault code"
+      },
+      "station_fault": {
+        "name": "Station fault code"
+      }
+    },
+    "binary_sensor": {
+      "problem": {
+        "name": "Problem"
+      },
+      "mop_installed": {
+        "name": "Mop installed"
+      }
+    },
+    "button": {
+      "wash_mops": {
+        "name": "Wash mops"
+      },
+      "empty_dust": {
+        "name": "Empty dust"
+      },
+      "dry_mops": {
+        "name": "Dry mops"
+      },
+      "stop_drying": {
+        "name": "Stop drying"
+      },
+      "clean_station": {
+        "name": "Clean station basin"
+      }
+    },
+    "select": {
+      "water_level": {
+        "name": "Water level"
+      },
+      "clean_mode": {
+        "name": "Cleaning mode",
+        "state": {
+          "vacuum_and_mop": "Vacuum and mop",
+          "vacuum": "Vacuum",
+          "mop": "Mop",
+          "vacuum_then_mop": "Vacuum then mop"
+        }
+      }
+    }
+  },
+  "services": {
+    "clean_rooms": {
+      "name": "Clean rooms",
+      "description": "Clean selected local room IDs using current mode, suction and water.",
+      "fields": {
+        "rooms": {
+          "name": "Rooms",
+          "description": "One to ten unique IDs from the vacuum rooms attribute."
+        },
+        "repeats": {
+          "name": "Repeats"
+        }
+      }
+    }
+  }
+}

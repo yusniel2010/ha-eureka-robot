@@ -1,0 +1,141 @@
+{
+  "title": "Eureka Robot (Local)",
+  "config": {
+    "step": {
+      "user": {
+        "title": "Eureka Robot (Local)",
+        "menu_options": {
+          "scan": "Buscar en la red local",
+          "manual": "Introducir IP manualmente"
+        }
+      },
+      "reconfigure": {
+        "title": "Cambiar dirección",
+        "data": {
+          "host": "Dirección IP o nombre de host"
+        }
+      },
+      "manual": {
+        "title": "Conexión local",
+        "data": {
+          "host": "IP o nombre de host"
+        }
+      },
+      "scan": {
+        "title": "Buscar aspiradora",
+        "description": "Busca respuestas B8 en una subred privada, máximo 256 direcciones. Solo envía consultas de estado. Si está en otra VLAN, introduce su subred o usa la IP manual.",
+        "data": {
+          "network": "Subred IPv4 (CIDR)"
+        }
+      },
+      "choose_device": {
+        "title": "Seleccionar aspiradora",
+        "description": "Una respuesta B8 confirma el protocolo, no el modelo. Confirma que el dispositivo seleccionado es tu Eureka J15 Pro Ultra.",
+        "data": {
+          "host": "Dispositivo encontrado",
+          "confirm_model": "Confirmo que es mi Eureka J15 Pro Ultra"
+        }
+      },
+      "no_devices": {
+        "title": "No se encontraron aspiradoras nuevas",
+        "description": "Comprueba que el robot está encendido, la subred es correcta y HA puede acceder al puerto TCP 12127. Prueba la IP manual o vuelve a buscar.",
+        "menu_options": {
+          "scan": "Buscar en la red local",
+          "manual": "Introducir IP manualmente"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "No se pudo conectar al robot.",
+      "invalid_host": "Introduce una IP o nombre de host, sin URL ni puerto.",
+      "invalid_network": "Usa una subred IPv4 privada de máximo 256 direcciones (/24 o menor).",
+      "confirm_model": "Confirma el modelo antes de continuar."
+    },
+    "abort": {
+      "already_configured": "Robot ya configurado.",
+      "reconfigure_successful": "Dirección actualizada."
+    },
+    "progress": {
+      "scanning": "Buscando dispositivos locales…"
+    }
+  },
+  "entity": {
+    "sensor": {
+      "battery": {
+        "name": "Batería"
+      },
+      "status": {
+        "name": "Estado"
+      },
+      "station_status": {
+        "name": "Estado de la base"
+      },
+      "cleaned_area": {
+        "name": "Área limpiada"
+      },
+      "clean_time": {
+        "name": "Tiempo de limpieza"
+      },
+      "robot_fault": {
+        "name": "Código de fallo del robot"
+      },
+      "station_fault": {
+        "name": "Código de fallo de la base"
+      }
+    },
+    "binary_sensor": {
+      "problem": {
+        "name": "Problema"
+      },
+      "mop_installed": {
+        "name": "Mopa instalada"
+      }
+    },
+    "button": {
+      "wash_mops": {
+        "name": "Lavar mopas"
+      },
+      "empty_dust": {
+        "name": "Vaciar polvo"
+      },
+      "dry_mops": {
+        "name": "Secar mopas"
+      },
+      "stop_drying": {
+        "name": "Detener secado"
+      },
+      "clean_station": {
+        "name": "Limpiar bandeja de la base"
+      }
+    },
+    "select": {
+      "water_level": {
+        "name": "Agua"
+      },
+      "clean_mode": {
+        "name": "Modo de limpieza",
+        "state": {
+          "vacuum_and_mop": "Aspirar y fregar",
+          "vacuum": "Aspirar",
+          "mop": "Fregar",
+          "vacuum_then_mop": "Aspirar y luego fregar"
+        }
+      }
+    }
+  },
+  "services": {
+    "clean_rooms": {
+      "name": "Limpiar habitaciones",
+      "description": "Limpia los IDs locales seleccionados con el modo, succión y agua actuales.",
+      "fields": {
+        "rooms": {
+          "name": "Habitaciones",
+          "description": "De uno a diez IDs únicos del atributo rooms de la aspiradora."
+        },
+        "repeats": {
+          "name": "Repeticiones"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,62 @@
+"""Short-lived local TCP requests; send immediately after connecting."""
+
+import asyncio
+import random
+
+from .errors import EurekaConnectionError
+from .frame import FrameParser
+
+
+class Transport:
+    def __init__(
+        self, host: str, port: int = 12127, *, attempts: int = 3, timeout: float = 2
+    ) -> None:
+        self.host = host
+        self.port = port
+        self.attempts = attempts
+        self.timeout = timeout
+
+    async def request(self, frame: bytes) -> bytes:
+        last_error = None
+        for attempt in range(self.attempts):
+            writer = None
+            sent = False
+            try:
+                async with asyncio.timeout(self.timeout):
+                    reader, writer = await asyncio.open_connection(self.host, self.port)
+                    sent = True
+                    writer.write(frame)
+                    await writer.drain()
+                parser = FrameParser()
+                async with asyncio.timeout(self.timeout):
+                    while data := await reader.read(4096):
+                        for reply in parser.feed(data):
+                            if reply[9] == frame[9] and (
+                                reply[10:13] == frame[10:13]
+                                or (
+                                    frame[9] == 3
+                                    and frame[10:13] == b"\xaa\x02\x28"
+                                    and reply[10] == 0xAA
+                                    and reply[11] in (1, 2)
+                                    and reply[12] == 0x28
+                                )
+                            ):
+                                return reply
+                last_error = "Connection closed before matching response"
+            except (OSError, TimeoutError) as err:
+                last_error = type(err).__name__
+            finally:
+                if writer is not None:
+                    writer.close()
+                    try:
+                        async with asyncio.timeout(0.5):
+                            await writer.wait_closed()
+                    except (OSError, TimeoutError):
+                        pass
+            if sent and frame[9] == 2:
+                raise EurekaConnectionError(
+                    "Command outcome is unknown; inspect robot status before retrying"
+                )
+            if attempt < self.attempts - 1:
+                await asyncio.sleep(random.uniform(0.3, 0.8))
+        raise EurekaConnectionError(f"No response from robot ({last_error})")
