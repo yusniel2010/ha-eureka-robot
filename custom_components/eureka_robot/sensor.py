@@ -8,7 +8,9 @@ from homeassistant.components.sensor import (
 from homeassistant.const import PERCENTAGE, UnitOfArea, UnitOfTime
 
 from .entity import EurekaEntity
-from .protocol.status import STATION_STATES, WORK_STATES
+from .protocol.status import ROBOT_FAULTS, STATION_FAULTS, STATION_STATES, WORK_STATES
+
+FAULT_TABLES = {"robot_fault": ROBOT_FAULTS, "station_fault": STATION_FAULTS}
 
 
 async def async_setup_entry(hass, entry, async_add_entities):
@@ -43,6 +45,18 @@ class EurekaSensor(EurekaEntity, SensorEntity):
         elif key == "clean_time":
             self._attr_native_unit_of_measurement = UnitOfTime.MINUTES
             self._attr_device_class = SensorDeviceClass.DURATION
+        elif key in FAULT_TABLES:
+            self._attr_device_class = SensorDeviceClass.ENUM
+            self._attr_options = sorted(
+                {"none", "unknown", *FAULT_TABLES[key].values()}
+            )
+
+    @property
+    def extra_state_attributes(self):
+        attributes = dict(self._attr_extra_state_attributes)
+        if self.key in FAULT_TABLES:
+            attributes["code"] = getattr(self.coordinator.data, self.key)
+        return attributes
 
     @property
     def native_value(self):
@@ -55,10 +69,9 @@ class EurekaSensor(EurekaEntity, SensorEntity):
             return status.area
         if self.key == "clean_time":
             return status.clean_minutes
-        if self.key == "robot_fault":
-            return status.robot_fault or "none"
-        if self.key == "station_fault":
-            return status.station_fault or "none"
+        if self.key in FAULT_TABLES:
+            code = getattr(status, self.key)
+            return FAULT_TABLES[self.key].get(code, "unknown") if code else "none"
         return STATION_STATES.get(
             status.station_status, f"unknown_{status.station_status}"
         )

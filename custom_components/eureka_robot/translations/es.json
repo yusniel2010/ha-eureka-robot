@@ -81,10 +81,62 @@
         "name": "Tiempo de limpieza"
       },
       "robot_fault": {
-        "name": "Código de fallo del robot"
+        "name": "Falla del robot",
+        "state": {
+          "battery_low": "Batería baja",
+          "bumper_stuck": "Parachoques atascado",
+          "cannot_leave_station": "No puede salir de la base",
+          "carpet_while_mopping": "Alfombra detectada al trapear",
+          "cliff_sensor_blocked": "Sensor anticaída bloqueado",
+          "dust_bin_missing": "Falta el depósito de polvo",
+          "hair_cut_failed": "Falló el corte de pelo",
+          "mapping_fault": "Falla del mapa",
+          "mop_disc_dropped": "Se cayó el disco de mopa",
+          "mop_disc_stuck": "Disco de mopa atascado",
+          "narrow_area": "Atascado en zona estrecha",
+          "no_go_zone": "Inició en zona prohibida",
+          "none": "Sin fallas",
+          "overheated": "Robot demasiado caliente",
+          "radar_blocked": "Radar bloqueado",
+          "radar_cover_stuck": "Tapa del radar atascada",
+          "radar_error": "Error del radar",
+          "radar_stuck": "Radar atascado",
+          "recharge_failed": "No pudo volver a cargar",
+          "relocation_failed": "No pudo ubicarse",
+          "robot_failure": "Falla del robot",
+          "roller_brush_stuck": "Cepillo principal atascado",
+          "side_brush_stuck": "Cepillo lateral atascado",
+          "tilted": "Robot inclinado",
+          "trapped": "Robot atrapado",
+          "unknown": "Falla desconocida",
+          "wheel_stuck": "Rueda atascada",
+          "wheel_suspended": "Rueda en el aire"
+        }
       },
       "station_fault": {
-        "name": "Código de fallo de la base"
+        "name": "Falla de la base",
+        "state": {
+          "air_dry_failed": "Falló el secado de mopas",
+          "clean_tank_overfull": "Tanque de agua limpia demasiado lleno",
+          "drainage_fault": "Falla de drenaje",
+          "dust_bag_full": "Bolsa de polvo llena",
+          "dust_bag_missing": "Falta la bolsa de polvo",
+          "dust_collection_failed": "Falló la recolección de polvo",
+          "heater_fault": "Falla del calentador",
+          "mop_disc_misplaced": "Disco de mopa mal colocado",
+          "mop_wash_failed": "Falló el lavado de mopas",
+          "none": "Sin fallas",
+          "self_cleaning_fault": "Falla de autolimpieza",
+          "station_bluetooth": "Bluetooth de la base desconectado",
+          "station_communication": "Falla de comunicación robot–base",
+          "task_interrupted": "No puede continuar la tarea",
+          "unknown": "Falla desconocida",
+          "wash_tray_full": "Bandeja de lavado llena",
+          "wash_tray_misplaced": "Bandeja de lavado mal colocada",
+          "waste_tank_full": "Tanque de agua sucia lleno",
+          "water_filling_fault": "Falla al llenar agua",
+          "water_tank_empty": "Tanque de agua limpia vacío"
+        }
       }
     },
     "binary_sensor": {
@@ -93,6 +145,9 @@
       },
       "mop_installed": {
         "name": "Mopa instalada"
+      },
+      "water_shortage": {
+        "name": "Sin agua"
       }
     },
     "button": {

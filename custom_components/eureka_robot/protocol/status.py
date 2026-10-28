@@ -46,6 +46,66 @@ STATION_STATES = {
     13: "draining",
 }
 
+# Vendor alert catalog: robot alerts are 01xx, station alerts FFxx.
+ROBOT_FAULTS = {
+    "0101": "dust_bin_missing",
+    "0102": "wheel_suspended",
+    "0103": "wheel_stuck",
+    "0104": "side_brush_stuck",
+    "0105": "roller_brush_stuck",
+    "0107": "bumper_stuck",
+    "0108": "radar_cover_stuck",
+    "0109": "cliff_sensor_blocked",
+    "010a": "battery_low",
+    "010b": "tilted",
+    "010c": "radar_blocked",
+    "0110": "radar_stuck",
+    "0111": "mop_disc_dropped",
+    "0115": "mop_disc_stuck",
+    "0118": "overheated",
+    "0120": "hair_cut_failed",
+    "012b": "recharge_failed",
+    "0143": "recharge_failed",
+    "0144": "recharge_failed",
+    "0154": "cannot_leave_station",
+    "0155": "trapped",
+    "015d": "trapped",
+    "0157": "robot_failure",
+    "0158": "carpet_while_mopping",
+    "0159": "no_go_zone",
+    "015a": "no_go_zone",
+    "015b": "no_go_zone",
+    "015e": "mapping_fault",
+    "0160": "narrow_area",
+    "01a0": "radar_error",
+    "01a4": "relocation_failed",
+    "01a5": "robot_failure",
+    "01a6": "robot_failure",
+}
+STATION_FAULTS = {
+    "ff64": "station_bluetooth",
+    "ff65": "mop_wash_failed",
+    "ff69": "wash_tray_misplaced",
+    "ff6a": "water_tank_empty",
+    "ff6b": "task_interrupted",
+    "ff6d": "air_dry_failed",
+    "ff6f": "wash_tray_full",
+    "ff72": "mop_disc_misplaced",
+    "ff76": "water_filling_fault",
+    "ff77": "drainage_fault",
+    "ff79": "dust_bag_full",
+    "ff7d": "station_communication",
+    "ff81": "dust_bag_missing",
+    "ff90": "wash_tray_full",
+    "ff94": "dust_collection_failed",
+    "ff95": "self_cleaning_fault",
+    "ff96": "self_cleaning_fault",
+    "ff97": "heater_fault",
+    "ff98": "waste_tank_full",
+    "ff99": "clean_tank_overfull",
+}
+WATER_SHORTAGE = "ff6a"
+
 
 @dataclass(frozen=True)
 class Status:

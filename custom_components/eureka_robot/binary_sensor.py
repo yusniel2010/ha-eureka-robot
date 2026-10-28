@@ -6,6 +6,7 @@ from homeassistant.components.binary_sensor import (
 )
 
 from .entity import EurekaEntity
+from .protocol.status import WATER_SHORTAGE
 
 
 async def async_setup_entry(hass, entry, async_add_entities):
@@ -13,8 +14,19 @@ async def async_setup_entry(hass, entry, async_add_entities):
         [
             EurekaProblem(entry.runtime_data, entry, "problem"),
             EurekaMop(entry.runtime_data, entry, "mop_installed"),
+            EurekaWaterShortage(entry.runtime_data, entry, "water_shortage"),
         ]
     )
+
+
+class EurekaWaterShortage(EurekaEntity, BinarySensorEntity):
+    _attr_device_class = BinarySensorDeviceClass.PROBLEM
+    _attr_translation_key = "water_shortage"
+    _attr_icon = "mdi:water-off"
+
+    @property
+    def is_on(self):
+        return self.coordinator.data.station_fault == WATER_SHORTAGE
 
 
 class EurekaProblem(EurekaEntity, BinarySensorEntity):

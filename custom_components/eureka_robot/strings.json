@@ -81,10 +81,62 @@
         "name": "Clean time"
       },
       "robot_fault": {
-        "name": "Robot fault code"
+        "name": "Robot fault",
+        "state": {
+          "battery_low": "Battery low",
+          "bumper_stuck": "Bumper stuck",
+          "cannot_leave_station": "Cannot leave the station",
+          "carpet_while_mopping": "Carpet detected while mopping",
+          "cliff_sensor_blocked": "Cliff sensor blocked",
+          "dust_bin_missing": "Dust bin missing",
+          "hair_cut_failed": "Hair cutting failed",
+          "mapping_fault": "Mapping fault",
+          "mop_disc_dropped": "Mop disc dropped",
+          "mop_disc_stuck": "Mop disc stuck",
+          "narrow_area": "Stuck in a narrow area",
+          "no_go_zone": "Started in a no-go zone",
+          "none": "No fault",
+          "overheated": "Robot too hot",
+          "radar_blocked": "Radar blocked",
+          "radar_cover_stuck": "Radar cover stuck",
+          "radar_error": "Radar error",
+          "radar_stuck": "Radar stuck",
+          "recharge_failed": "Recharging failed",
+          "relocation_failed": "Relocation failed",
+          "robot_failure": "Robot failure",
+          "roller_brush_stuck": "Roller brush stuck",
+          "side_brush_stuck": "Side brush stuck",
+          "tilted": "Robot tilted",
+          "trapped": "Robot trapped",
+          "unknown": "Unknown fault",
+          "wheel_stuck": "Wheel stuck",
+          "wheel_suspended": "Wheel suspended"
+        }
       },
       "station_fault": {
-        "name": "Station fault code"
+        "name": "Station fault",
+        "state": {
+          "air_dry_failed": "Mop air-drying failed",
+          "clean_tank_overfull": "Clean water tank overfull",
+          "drainage_fault": "Drainage fault",
+          "dust_bag_full": "Dust bag full",
+          "dust_bag_missing": "Dust bag missing",
+          "dust_collection_failed": "Dust collection failed",
+          "heater_fault": "Heater fault",
+          "mop_disc_misplaced": "Mop disc not installed properly",
+          "mop_wash_failed": "Mop wash failed",
+          "none": "No fault",
+          "self_cleaning_fault": "Self-cleaning fault",
+          "station_bluetooth": "Station Bluetooth not connected",
+          "station_communication": "Robot–station communication fault",
+          "task_interrupted": "Task cannot continue",
+          "unknown": "Unknown fault",
+          "wash_tray_full": "Wash tray full",
+          "wash_tray_misplaced": "Wash tray not installed properly",
+          "waste_tank_full": "Dirty water tank full",
+          "water_filling_fault": "Water filling fault",
+          "water_tank_empty": "Clean water tank empty"
+        }
       }
     },
     "binary_sensor": {
@@ -93,6 +145,9 @@
       },
       "mop_installed": {
         "name": "Mop installed"
+      },
+      "water_shortage": {
+        "name": "Water shortage"
       }
     },
     "button": {
