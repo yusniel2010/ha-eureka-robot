@@ -10,6 +10,7 @@ ACTIONS = {
     "dry_mops": ("dry", "mdi:weather-windy"),
     "stop_drying": ("stop_drying", "mdi:fan-off"),
     "clean_station": ("station_clean", "mdi:shower-head"),
+    "check_water": ("recheck_water", "mdi:water-check"),
 }
 
 
@@ -30,4 +31,7 @@ class EurekaStationButton(EurekaEntity, ButtonEntity):
         return super().available and self.coordinator.data.activity == "docked"
 
     async def async_press(self):
+        if self.action == "recheck_water":
+            await self.coordinator.recheck_water()
+            return
         await self.coordinator.command(self.action)

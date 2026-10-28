@@ -165,6 +165,9 @@
       },
       "clean_station": {
         "name": "Clean station basin"
+      },
+      "check_water": {
+        "name": "Check water"
       }
     },
     "select": {

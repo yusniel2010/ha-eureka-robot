@@ -11,10 +11,12 @@ from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, Upda
 from .const import DOMAIN
 from .protocol.commands import CLEAN_MODES, FAN_LEVELS
 from .protocol.errors import EurekaError, EurekaOutcomeUnknownError
-from .protocol.status import Status
+from .protocol.status import WATER_SHORTAGE, Status
 
 _LOGGER = logging.getLogger(__name__)
-STATION_ACTIONS = {"wash", "station_clean", "empty", "dry", "stop_drying"}
+STATION_ACTIONS = {"wash", "stop_washing", "station_clean", "empty", "dry", "stop_drying"}
+RECHECK_INTERVAL = 2
+RECHECK_ATTEMPTS = 15
 
 
 class EurekaCoordinator(DataUpdateCoordinator[Status]):
@@ -105,6 +107,36 @@ class EurekaCoordinator(DataUpdateCoordinator[Status]):
         )
         return False
 
+    async def recheck_water(self):
+        """Clear a latched empty-tank alert after refilling.
+
+        The station only re-reads the tank when it pumps water, so start a mop
+        wash, wait for the alert to clear, then stop washing at once.
+        """
+        if self.data.activity != "docked":
+            raise HomeAssistantError("Robot must be on the station")
+        await self.command("wash")
+        try:
+            status = await self._wait_for_water_check()
+        finally:
+            await self.command("stop_washing")
+        if status is None or status.station_fault == WATER_SHORTAGE:
+            raise HomeAssistantError("Clean water tank still reports empty")
+
+    async def _wait_for_water_check(self):
+        status = None
+        for _ in range(RECHECK_ATTEMPTS):
+            try:
+                status = await self.client.status()
+            except EurekaError:
+                await asyncio.sleep(RECHECK_INTERVAL)
+                continue
+            self.async_set_updated_data(status)
+            if status.station_fault != WATER_SHORTAGE:
+                return status
+            await asyncio.sleep(RECHECK_INTERVAL)
+        return status
+
     async def clean_rooms(self, rooms, repeats):
         if not self.rooms or any(room not in self.rooms for room in rooms):
             raise HomeAssistantError("Select rooms from the current local room list")
@@ -133,6 +165,8 @@ def _observed_transition(action, value, before, after):
     def target(status):
         if action == "wash":
             return status.station_status == 3 or status.work_status in (13, 14)
+        if action == "stop_washing":
+            return status.station_status != 3 and status.work_status not in (13, 14)
         if action == "station_clean":
             return status.station_status == 9
         if action == "empty":

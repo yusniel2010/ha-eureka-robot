@@ -16,6 +16,7 @@ ACTION_BODIES = {
     "pause": "aa019900",
     "stop": "aa010107",
     "wash": "aa019901",
+    "stop_washing": "aa019900",
     "station_clean": "aa015b01",
     "empty": "aa015a0201",
     "dry": "aa015c01",
