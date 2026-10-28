@@ -15,6 +15,7 @@ async def async_setup_entry(hass, entry, async_add_entities):
             EurekaSelect(entry.runtime_data, entry, key)
             for key in ("clean_mode", "water_level")
         ]
+        + [EurekaRoomSelect(entry.runtime_data, entry, "room")]
     )
 
 
@@ -59,3 +60,24 @@ class EurekaSelect(EurekaEntity, SelectEntity):
                 else ["off", "low", "normal", "high"].index(option)
             )
             await self.coordinator.command("water", value)
+
+
+class EurekaRoomSelect(EurekaEntity, SelectEntity):
+    """Pick one room for the Clean room button, to learn which ID is which."""
+
+    _attr_translation_key = "room"
+    _attr_icon = "mdi:floor-plan"
+
+    @property
+    def options(self):
+        return list(self.coordinator.room_names().values())
+
+    @property
+    def current_option(self):
+        return self.coordinator.room_names().get(self.coordinator.selected_room)
+
+    async def async_select_option(self, option):
+        self.coordinator.selected_room = next(
+            room for room, name in self.coordinator.room_names().items() if name == option
+        )
+        self.async_write_ha_state()

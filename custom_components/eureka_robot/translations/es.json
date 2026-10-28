@@ -178,6 +178,9 @@
       },
       "check_water": {
         "name": "Revisar agua"
+      },
+      "clean_room": {
+        "name": "Limpiar habitación"
       }
     },
     "select": {
@@ -192,6 +195,9 @@
           "mop": "Fregar",
           "vacuum_then_mop": "Aspirar y luego fregar"
         }
+      },
+      "room": {
+        "name": "Habitación"
       }
     }
   },

@@ -11,7 +11,7 @@ Control and monitor a **Eureka J15 Pro Ultra** from Home Assistant **over your l
 
 ## Requirements
 
-- Home Assistant 2025.12 or newer, with [HACS](https://hacs.xyz).
+- Home Assistant 2026.3 or newer, with [HACS](https://hacs.xyz).
 - The robot set up in the Eureka app and connected to Wi-Fi.
 - Home Assistant and the robot on networks that can reach each other (the robot listens on TCP port 12127).
 - A reserved (fixed) IP address for the robot in your router is recommended.
@@ -47,11 +47,11 @@ Setup fields:
 
 | Type | Entities |
 |---|---|
-| Vacuum | Start, pause, stop, return to dock, suction level. Room list in the `rooms` attribute. |
+| Vacuum | Start, pause, stop, return to dock, suction level, **clean area** (rooms mapped to your Home Assistant areas). Room list in the `rooms` attribute. |
 | Sensors | Battery, status, station status, cleaned area, cleaning time, robot fault, station fault (readable text; raw code in the `code` attribute). |
 | Binary sensors | Problem, mop installed, water shortage. |
-| Selects | Cleaning mode, water level. |
-| Buttons | Wash mops, empty dust, dry mops, stop drying, clean station, **check water**. Station buttons work only while the robot is docked. |
+| Selects | Cleaning mode, water level, room. |
+| Buttons | Wash mops, empty dust, dry mops, stop drying, clean station, **check water**, **clean room** (cleans the room picked in the Room select). Station buttons work only while the robot is docked. |
 | Service | `eureka_robot.clean_rooms`: clean selected room IDs from the `rooms` attribute. |
 
 **Check water:** after refilling the clean-water tank, the station keeps the "tank empty" alert (red light) until it pumps water again. This button starts a mop wash, stops it as soon as the alert clears (about 2 seconds) and reports an error if the tank still reads empty. You'll hear the station briefly.
@@ -74,7 +74,23 @@ data:
   repeats: 1
 ```
 
-Room names are not available locally (they're stored in the Eureka cloud), so rooms appear as `Room 3`, `Room 7`, and so on.
+## Rooms
+
+The robot only reports room numbers locally (names live in the Eureka cloud), so rooms start as `Room 1`, `Room 2`, and so on. Map them to your Home Assistant areas once:
+
+1. **Find which number is which room:** pick a room in the **Room** select and press **Clean room**. Watch where the robot goes, then dock it.
+2. **Map them:** open the vacuum entity's settings, go to its area mapping, and assign each `Room N` to a Home Assistant area (Kitchen, Bedroom…). Leave unused ones empty.
+3. **Clean by area:** use the built-in `vacuum.clean_area` action, or the dashboard card. Mapped rooms show their area name in the card, the Room select and the `rooms` attribute.
+
+```yaml
+action: vacuum.clean_area
+target:
+  entity_id: vacuum.eureka_j15_pro_ultra
+data:
+  cleaning_area_id: [kitchen, living_room]
+```
+
+If the robot's rooms change (for example after re-mapping your home in the Eureka app), Home Assistant shows a repair asking you to map the areas again.
 
 ## Dashboard card
 
@@ -94,7 +110,7 @@ entity: vacuum.eureka_j15_pro_ultra
 1. Check that the integration is set up and the `vacuum` entity exists.
 2. Enable **Advanced mode** in your user profile if you don't see Resources.
 3. Go to **Settings → Dashboards → ⋮ → Resources → Add resource**:
-   - **URL:** `/eureka_robot/eureka-robot-card.js?v=0.4.2`
+   - **URL:** `/eureka_robot/eureka-robot-card.js?v=0.5.0`
    - **Type:** JavaScript module
 4. Save and fully reload the browser (`Ctrl+Shift+R` / `Cmd+Shift+R`).
 
@@ -103,7 +119,7 @@ Opening that URL on your Home Assistant address must show JavaScript code. A **4
 If you manage resources in YAML, add this once to `lovelace.resources`:
 
 ```yaml
-- url: /eureka_robot/eureka-robot-card.js?v=0.4.2
+- url: /eureka_robot/eureka-robot-card.js?v=0.5.0
   type: module
 ```
 
@@ -135,7 +151,7 @@ The robot and the Eureka app keep working; the integration doesn't change anythi
 
 ## Known issues
 
-- Pause sends the wrong command: [#1](https://github.com/yusniel2010/ha-eureka-robot/issues/1).
+- Pause now sends the work-mode pause command, but it hasn't been confirmed on a live robot yet: [#1](https://github.com/yusniel2010/ha-eureka-robot/issues/1). Please report if it doesn't pause yours.
 
 ## Contributing
 
@@ -155,7 +171,7 @@ Controla y monitorea una **Eureka J15 Pro Ultra** desde Home Assistant **por tu 
 
 ## Requisitos
 
-- Home Assistant 2025.12 o posterior, con [HACS](https://hacs.xyz).
+- Home Assistant 2026.3 o posterior, con [HACS](https://hacs.xyz).
 - El robot configurado en la app de Eureka y conectado al Wi-Fi.
 - Home Assistant y el robot en redes que se puedan comunicar (el robot escucha en el puerto TCP 12127).
 - Se recomienda reservar una IP fija para el robot en el router.
@@ -191,11 +207,11 @@ Campos de configuración:
 
 | Tipo | Entidades |
 |---|---|
-| Aspiradora | Iniciar, pausar, detener, volver a la base, nivel de succión. Lista de cuartos en el atributo `rooms`. |
+| Aspiradora | Iniciar, pausar, detener, volver a la base, nivel de succión, **limpiar área** (habitaciones asignadas a tus áreas de Home Assistant). Lista de cuartos en el atributo `rooms`. |
 | Sensores | Batería, estado, estado de la base, área limpiada, tiempo de limpieza, falla del robot, falla de la base (texto legible; código en el atributo `code`). |
 | Sensores binarios | Problema, mopa instalada, sin agua. |
-| Selectores | Modo de limpieza, nivel de agua. |
-| Botones | Lavar mopas, vaciar polvo, secar mopas, detener secado, limpiar base, **revisar agua**. Los botones de la base solo funcionan con el robot en la base. |
+| Selectores | Modo de limpieza, nivel de agua, habitación. |
+| Botones | Lavar mopas, vaciar polvo, secar mopas, detener secado, limpiar base, **revisar agua**, **limpiar habitación** (limpia la elegida en el selector Habitación). Los botones de la base solo funcionan con el robot en la base. |
 | Servicio | `eureka_robot.clean_rooms`: limpia los cuartos elegidos del atributo `rooms`. |
 
 **Revisar agua:** después de rellenar el tanque de agua limpia, la base mantiene la alerta de "tanque vacío" (luz roja) hasta que vuelve a bombear agua. Este botón inicia un lavado de mopas, lo detiene en cuanto la alerta se borra (unos 2 segundos) y avisa si el tanque sigue vacío. Se oye la base un momento.
@@ -218,7 +234,23 @@ data:
   repeats: 1
 ```
 
-Los nombres de los cuartos no están disponibles localmente (se guardan en la nube de Eureka), así que aparecen como `Room 3`, `Room 7`, etc.
+## Habitaciones
+
+Localmente el robot solo reporta números de habitación (los nombres se guardan en la nube de Eureka), así que al principio aparecen como `Room 1`, `Room 2`, etc. Asígnalas a tus áreas de Home Assistant una sola vez:
+
+1. **Descubre cuál es cuál:** elige una habitación en el selector **Habitación** y pulsa **Limpiar habitación**. Mira adónde va el robot y luego mándalo a la base.
+2. **Asígnalas:** abre los ajustes de la entidad de la aspiradora, entra en la asignación de áreas y asigna cada `Room N` a un área de Home Assistant (Cocina, Dormitorio…). Deja vacías las que no uses.
+3. **Limpia por área:** usa la acción nativa `vacuum.clean_area` o la tarjeta del dashboard. Las habitaciones asignadas muestran el nombre del área en la tarjeta, en el selector Habitación y en el atributo `rooms`.
+
+```yaml
+action: vacuum.clean_area
+target:
+  entity_id: vacuum.eureka_j15_pro_ultra
+data:
+  cleaning_area_id: [cocina, sala]
+```
+
+Si cambian las habitaciones del robot (por ejemplo, al volver a mapear la casa en la app de Eureka), Home Assistant muestra una reparación para asignar las áreas de nuevo.
 
 ## Tarjeta del dashboard
 
@@ -238,7 +270,7 @@ entity: vacuum.eureka_j15_pro_ultra
 1. Comprueba que la integración esté configurada y que exista la entidad `vacuum`.
 2. Activa el **Modo avanzado** en tu perfil si no ves Recursos.
 3. Ve a **Ajustes → Paneles de control → ⋮ → Recursos → Añadir recurso**:
-   - **URL:** `/eureka_robot/eureka-robot-card.js?v=0.4.2`
+   - **URL:** `/eureka_robot/eureka-robot-card.js?v=0.5.0`
    - **Tipo:** Módulo JavaScript
 4. Guarda y recarga el navegador por completo (`Ctrl+Shift+R` / `Cmd+Shift+R`).
 
@@ -247,7 +279,7 @@ Esa URL, abierta en la dirección de tu Home Assistant, debe mostrar código Jav
 Si administras los recursos en YAML, añade esto una sola vez a `lovelace.resources`:
 
 ```yaml
-- url: /eureka_robot/eureka-robot-card.js?v=0.4.2
+- url: /eureka_robot/eureka-robot-card.js?v=0.5.0
   type: module
 ```
 
@@ -279,7 +311,7 @@ El robot y la app de Eureka siguen funcionando; la integración no cambia nada e
 
 ## Problemas conocidos
 
-- Pausar manda el comando equivocado: [#1](https://github.com/yusniel2010/ha-eureka-robot/issues/1).
+- Pausar ahora manda el comando de pausa del modo de trabajo, pero aún no está confirmado con el robot real: [#1](https://github.com/yusniel2010/ha-eureka-robot/issues/1). Avisa si no pausa el tuyo.
 
 ## Contribuir
 

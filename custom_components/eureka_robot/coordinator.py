@@ -6,6 +6,7 @@ import time
 from datetime import timedelta
 
 from homeassistant.exceptions import HomeAssistantError, ServiceValidationError
+from homeassistant.helpers import area_registry as ar, entity_registry as er
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
 from .const import DOMAIN
@@ -31,6 +32,7 @@ class EurekaCoordinator(DataUpdateCoordinator[Status]):
         self.client = client
         self.failures = 0
         self.rooms = {}
+        self.selected_room = None
         self._rooms_updated = 0.0
 
     async def _async_update_data(self):
@@ -136,6 +138,31 @@ class EurekaCoordinator(DataUpdateCoordinator[Status]):
                 return status
             await asyncio.sleep(RECHECK_INTERVAL)
         return status
+
+    def room_names(self):
+        """Robot room IDs labelled with the HA area the user mapped them to."""
+        names = {room: f"Room {room}" for room in self.rooms}
+        registry = er.async_get(self.hass)
+        entity_id = registry.async_get_entity_id(
+            "vacuum", DOMAIN, f"{self.config_entry.entry_id}_vacuum"
+        )
+        entry = registry.async_get(entity_id) if entity_id else None
+        mapping = (entry.options.get("vacuum", {}).get("area_mapping") or {}) if entry else {}
+        areas = ar.async_get(self.hass)
+        for area_id, segments in mapping.items():
+            if (area := areas.async_get_area(area_id)) is None:
+                continue
+            for segment in segments:
+                if segment.isdigit() and int(segment) in names:
+                    names[int(segment)] = area.name
+        # Two rooms mapped to one area stay distinguishable.
+        counts = {}
+        for name in names.values():
+            counts[name] = counts.get(name, 0) + 1
+        return {
+            room: f"{name} ({room})" if counts[name] > 1 else name
+            for room, name in names.items()
+        }
 
     async def clean_rooms(self, rooms, repeats):
         if not self.rooms or any(room not in self.rooms for room in rooms):

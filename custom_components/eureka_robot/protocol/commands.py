@@ -13,7 +13,7 @@ ACTION_BODIES = {
     "start": "aa010104",
     "resume": "aa010106",
     "dock": "aa010101",
-    "pause": "aa019900",
+    "pause": "aa010105",
     "stop": "aa010107",
     "wash": "aa019901",
     "stop_washing": "aa019900",

@@ -1,6 +1,7 @@
 """Expose only locally verified vacuum controls."""
 
 from homeassistant.components.vacuum import (
+    Segment,
     StateVacuumEntity,
     VacuumActivity,
     VacuumEntityFeature,
@@ -27,6 +28,7 @@ class EurekaVacuum(EurekaEntity, StateVacuumEntity):
         | VacuumEntityFeature.STOP
         | VacuumEntityFeature.RETURN_HOME
         | VacuumEntityFeature.FAN_SPEED
+        | VacuumEntityFeature.CLEAN_AREA
     )
 
     def __init__(self, coordinator, entry):
@@ -60,7 +62,32 @@ class EurekaVacuum(EurekaEntity, StateVacuumEntity):
 
     @property
     def extra_state_attributes(self):
-        return {**self._attr_extra_state_attributes, "rooms": self.coordinator.rooms}
+        return {
+            **self._attr_extra_state_attributes,
+            "rooms": self.coordinator.room_names(),
+        }
+
+    def _handle_coordinator_update(self):
+        self._check_segments()
+        super()._handle_coordinator_update()
+
+    def _check_segments(self):
+        """Ask the user to remap areas when the robot reports other rooms."""
+        if self.registry_entry is None or not self.coordinator.rooms:
+            return
+        last_seen = self.last_seen_segments
+        if last_seen is not None and {s.id for s in last_seen} != {
+            str(room) for room in self.coordinator.rooms
+        }:
+            self.async_create_segments_issue()
+
+    async def async_get_segments(self):
+        return [
+            Segment(id=str(room), name=f"Room {room}") for room in self.coordinator.rooms
+        ]
+
+    async def async_clean_segments(self, segment_ids, **kwargs):
+        await self.coordinator.clean_rooms([int(s) for s in segment_ids], 1)
 
     async def async_start(self):
         if self.coordinator.data.has_task is None:

@@ -178,6 +178,9 @@
       },
       "check_water": {
         "name": "Check water"
+      },
+      "clean_room": {
+        "name": "Clean room"
       }
     },
     "select": {
@@ -192,6 +195,9 @@
           "mop": "Mop",
           "vacuum_then_mop": "Vacuum then mop"
         }
+      },
+      "room": {
+        "name": "Room"
       }
     }
   },
