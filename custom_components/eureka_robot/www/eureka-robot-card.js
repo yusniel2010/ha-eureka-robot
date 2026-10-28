@@ -10,10 +10,31 @@ class EurekaRobotCard extends HTMLElement {
     if (this._config?.entity!==config.entity) this._rooms.clear();
     this._config={...config}; this.render();
   }
-  set hass(hass) { this._hass=hass; this.render(); }
+  // HA pushes hass on every state change in the house; rebuilding the card each time
+  // destroys an open <select>. Re-render only when this robot's entities change,
+  // and wait while the user has a select open.
+  set hass(hass) {
+    this._hass=hass;
+    const sig=this._signature();
+    if (sig===this._sig) return;
+    if (this._picking) { this._stale=true; return; }
+    this.render();
+  }
+  _signature() {
+    const h=this._hass, id=this._config?.entity;
+    if (!h || !id) return '';
+    if (h.entities!==this._entitiesRef || id!==this._idsFor) {
+      const device=h.entities?.[id]?.device_id;
+      this._ids=[id,...Object.values(h.entities || {}).filter(e=>device && e.device_id===device && e.entity_id!==id).map(e=>e.entity_id)];
+      this._entitiesRef=h.entities;this._idsFor=id;
+    }
+    return [h.locale?.language || h.language,...this._ids.map(e=>`${e}:${h.states[e]?.last_updated || ''}`)].join('|');
+  }
+  _pickDone() { this._picking=false; if (this._stale) { this._stale=false; this.render(); } }
   getCardSize() { return 8; }
   render() {
     if (!this._hass || !this._config) return;
+    this._sig=this._signature();
     const h=this._hass, root=this.shadowRoot;
     const es=(h.locale?.language || h.language || '').startsWith('es');
     const w=es ? {offline:'Sin conexión',start:'Iniciar',pause:'Pausar',stop:'Detener',dock:'Volver a base',wash:'Lavar mopas',empty:'Vaciar polvo',dry:'Secar mopas',stopDry:'Detener secado',basin:'Limpiar bandeja',unknown:'Desconocido',mode:'Modo de limpieza',water:'Agua',fan:'Succión',rooms:'Habitaciones',selected:'Limpiar selección',repeats:'Repeticiones',area:'Área',time:'Tiempo',pick:'Selecciona una aspiradora Eureka en el editor.',room:'Habitación',checkWater:'Revisar agua'} :
@@ -73,7 +94,7 @@ class EurekaRobotCard extends HTMLElement {
       const select=document.createElement('select');select.setAttribute('aria-label',label);select.disabled=offline || this._busy || !enabled;
       if (!options.includes(current)) { const option=document.createElement('option');option.value='';option.textContent='—';option.disabled=true;select.append(option); }
       for (const value of options) { const option=document.createElement('option');option.value=value;option.textContent=optionLabels[value] || value;select.append(option); }
-      select.value=current || '';select.onchange=()=>handler(select.value);field.append(select);settings.append(field);
+      select.value=current || '';select.onfocus=()=>this._picking=true;select.onblur=()=>this._pickDone();select.onchange=()=>{this._picking=false;this._stale=false;handler(select.value);};field.append(select);settings.append(field);
     };
     for (const [role,label] of [['clean_mode',w.mode],['water_level',w.water]]) {
       const id=find(role), e=h.states[id];
@@ -100,7 +121,7 @@ class EurekaRobotCard extends HTMLElement {
       const footer=section.querySelector('.room-footer');
       const repeats=document.createElement('select');repeats.setAttribute('aria-label',w.repeats);repeats.style.width='auto';
       for (const n of [1,2,3]) { const o=document.createElement('option');o.value=n;o.textContent=`×${n}`;repeats.append(o); }
-      repeats.value=this._repeats;repeats.disabled=offline || this._busy;repeats.onchange=()=>this._repeats=Number(repeats.value);footer.append(repeats);
+      repeats.value=this._repeats;repeats.disabled=offline || this._busy;repeats.onfocus=()=>this._picking=true;repeats.onblur=()=>this._pickDone();repeats.onchange=()=>{this._repeats=Number(repeats.value);this._picking=false;};footer.append(repeats);
       addButton(footer,w.selected,()=>this.call('eureka_robot','clean_rooms',this._config.entity,{rooms:[...this._rooms].map(Number),repeats:this._repeats}),this._rooms.size>0,true);
     }
     if (this._error) { const error=root.querySelector('.error');error.hidden=false;error.textContent=this._error; }
