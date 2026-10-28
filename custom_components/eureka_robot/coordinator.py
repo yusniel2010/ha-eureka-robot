@@ -5,7 +5,7 @@ import logging
 import time
 from datetime import timedelta
 
-from homeassistant.exceptions import HomeAssistantError
+from homeassistant.exceptions import HomeAssistantError, ServiceValidationError
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
 from .const import DOMAIN
@@ -61,7 +61,7 @@ class EurekaCoordinator(DataUpdateCoordinator[Status]):
 
     async def command(self, action, value=None):
         if action in STATION_ACTIONS and self.data.activity != "docked":
-            raise HomeAssistantError("Robot must be on the station")
+            raise ServiceValidationError("Robot must be on the station")
         before = self.data
         try:
             if value is None:
@@ -114,7 +114,7 @@ class EurekaCoordinator(DataUpdateCoordinator[Status]):
         wash, wait for the alert to clear, then stop washing at once.
         """
         if self.data.activity != "docked":
-            raise HomeAssistantError("Robot must be on the station")
+            raise ServiceValidationError("Robot must be on the station")
         await self.command("wash")
         try:
             status = await self._wait_for_water_check()
@@ -139,10 +139,10 @@ class EurekaCoordinator(DataUpdateCoordinator[Status]):
 
     async def clean_rooms(self, rooms, repeats):
         if not self.rooms or any(room not in self.rooms for room in rooms):
-            raise HomeAssistantError("Select rooms from the current local room list")
+            raise ServiceValidationError("Select rooms from the current local room list")
         status = self.data
         if status.mop_mode is None or status.mop_mode not in range(4):
-            raise HomeAssistantError("Choose a supported cleaning mode first")
+            raise ServiceValidationError("Choose a supported cleaning mode first")
         water = status.water - 100 if status.water >= 100 else status.water
         try:
             await self.client.clean_rooms(

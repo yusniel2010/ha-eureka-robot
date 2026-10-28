@@ -25,6 +25,15 @@ Control and monitor a **Eureka J15 Pro Ultra** from Home Assistant **over your l
    - If the robot isn't found, retry, choose **Enter IP manually**, or use **Search another network (advanced)**.
 5. Select the robot, confirm the model and finish. A `vacuum` entity is created.
 
+Setup fields:
+
+| Field | Description |
+|---|---|
+| Search automatically | Scans the private networks of Home Assistant's enabled network adapters for robots answering on TCP 12127. |
+| IP address (manual) | The robot's IP address or hostname. Setup checks that the robot answers before creating the entry. |
+| Network (advanced) | A private network in CIDR form (for example `192.168.20.0/24`) when the robot is on a different, routed network. |
+| Confirm model | Required: only the J15 Pro Ultra has been tested. |
+
 If the robot's IP changes, open the integration and use **Reconfigure**.
 
 ### Manual installation
@@ -44,6 +53,26 @@ If the robot's IP changes, open the integration and use **Reconfigure**.
 | Service | `eureka_robot.clean_rooms`: clean selected room IDs from the `rooms` attribute. |
 
 **Check water:** after refilling the clean-water tank, the station keeps the "tank empty" alert (red light) until it pumps water again. This button starts a mop wash, stops it as soon as the alert clears (about 2 seconds) and reports an error if the tank still reads empty. You'll hear the station briefly.
+
+### Action: `eureka_robot.clean_rooms`
+
+Cleans selected rooms with the robot's current suction, water level and cleaning mode.
+
+| Field | Required | Description |
+|---|---|---|
+| `rooms` | yes | 1–10 room IDs from the vacuum's `rooms` attribute. |
+| `repeats` | no | Passes per room, 1–3 (default 1). |
+
+```yaml
+action: eureka_robot.clean_rooms
+target:
+  entity_id: vacuum.eureka_j15_pro_ultra
+data:
+  rooms: [3, 7]
+  repeats: 1
+```
+
+Room names are not available locally (they're stored in the Eureka cloud), so rooms appear as `Room 3`, `Room 7`, and so on.
 
 ## Dashboard card
 
@@ -81,6 +110,14 @@ If you manage resources in YAML, add this once to `lovelace.resources`:
 1. Download the new version in HACS.
 2. Restart Home Assistant.
 3. Reload the browser or reopen the mobile app.
+
+## Removing
+
+1. Go to **Settings → Devices & services → Eureka Robot (Local)**, open the **⋮** menu on the entry and choose **Delete**.
+2. Remove the card from your dashboards.
+3. To uninstall the files, open **HACS → Eureka Robot (Local) → ⋮ → Remove**, then restart Home Assistant.
+
+The robot and the Eureka app keep working; the integration doesn't change anything on the robot or your account.
 
 ## Troubleshooting
 
@@ -130,6 +167,15 @@ Controla y monitorea una **Eureka J15 Pro Ultra** desde Home Assistant **por tu 
    - Si no encuentra el robot, reintenta, elige **Introducir IP manualmente** o usa **Buscar en otra red (avanzado)**.
 5. Selecciona el robot, confirma el modelo y termina. Se crea una entidad `vacuum`.
 
+Campos de configuración:
+
+| Campo | Descripción |
+|---|---|
+| Buscar automáticamente | Revisa las redes privadas de los adaptadores de red activos de Home Assistant buscando robots que respondan en el puerto TCP 12127. |
+| Dirección IP (manual) | La IP o el nombre de host del robot. Antes de crear la entrada se comprueba que el robot responda. |
+| Red (avanzado) | Una red privada en formato CIDR (por ejemplo `192.168.20.0/24`) cuando el robot está en otra red enrutada. |
+| Confirmar modelo | Obligatorio: solo se ha probado con la J15 Pro Ultra. |
+
 Si cambia la IP del robot, abre la integración y usa **Reconfigurar**.
 
 ### Instalación manual
@@ -149,6 +195,26 @@ Si cambia la IP del robot, abre la integración y usa **Reconfigurar**.
 | Servicio | `eureka_robot.clean_rooms`: limpia los cuartos elegidos del atributo `rooms`. |
 
 **Revisar agua:** después de rellenar el tanque de agua limpia, la base mantiene la alerta de "tanque vacío" (luz roja) hasta que vuelve a bombear agua. Este botón inicia un lavado de mopas, lo detiene en cuanto la alerta se borra (unos 2 segundos) y avisa si el tanque sigue vacío. Se oye la base un momento.
+
+### Acción: `eureka_robot.clean_rooms`
+
+Limpia los cuartos elegidos con la succión, el nivel de agua y el modo de limpieza actuales del robot.
+
+| Campo | Obligatorio | Descripción |
+|---|---|---|
+| `rooms` | sí | De 1 a 10 IDs de cuarto del atributo `rooms` de la aspiradora. |
+| `repeats` | no | Pasadas por cuarto, de 1 a 3 (por defecto 1). |
+
+```yaml
+action: eureka_robot.clean_rooms
+target:
+  entity_id: vacuum.eureka_j15_pro_ultra
+data:
+  rooms: [3, 7]
+  repeats: 1
+```
+
+Los nombres de los cuartos no están disponibles localmente (se guardan en la nube de Eureka), así que aparecen como `Room 3`, `Room 7`, etc.
 
 ## Tarjeta del dashboard
 
@@ -186,6 +252,14 @@ Si administras los recursos en YAML, añade esto una sola vez a `lovelace.resour
 1. Descarga la nueva versión en HACS.
 2. Reinicia Home Assistant.
 3. Recarga el navegador o vuelve a abrir la app móvil.
+
+## Eliminar
+
+1. Ve a **Ajustes → Dispositivos y servicios → Eureka Robot (Local)**, abre el menú **⋮** de la entrada y elige **Eliminar**.
+2. Quita la tarjeta de tus dashboards.
+3. Para desinstalar los archivos, abre **HACS → Eureka Robot (Local) → ⋮ → Eliminar** y reinicia Home Assistant.
+
+El robot y la app de Eureka siguen funcionando; la integración no cambia nada en el robot ni en tu cuenta.
 
 ## Solución de problemas
 

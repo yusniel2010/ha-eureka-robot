@@ -13,6 +13,9 @@ from .protocol.status import ROBOT_FAULTS, STATION_FAULTS, STATION_STATES, WORK_
 FAULT_TABLES = {"robot_fault": ROBOT_FAULTS, "station_fault": STATION_FAULTS}
 
 
+PARALLEL_UPDATES = 0
+
+
 async def async_setup_entry(hass, entry, async_add_entities):
     async_add_entities(
         [

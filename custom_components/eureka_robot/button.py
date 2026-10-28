@@ -14,6 +14,9 @@ ACTIONS = {
 }
 
 
+PARALLEL_UPDATES = 1
+
+
 async def async_setup_entry(hass, entry, async_add_entities):
     async_add_entities(
         [EurekaStationButton(entry.runtime_data, entry, key) for key in ACTIONS]

@@ -9,6 +9,9 @@ from .entity import EurekaEntity
 from .protocol.status import WATER_SHORTAGE
 
 
+PARALLEL_UPDATES = 0
+
+
 async def async_setup_entry(hass, entry, async_add_entities):
     async_add_entities(
         [

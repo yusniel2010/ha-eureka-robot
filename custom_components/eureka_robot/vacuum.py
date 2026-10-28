@@ -1,37 +1,21 @@
 """Expose only locally verified vacuum controls."""
 
-import voluptuous as vol
 from homeassistant.components.vacuum import (
     StateVacuumEntity,
     VacuumActivity,
     VacuumEntityFeature,
 )
 from homeassistant.exceptions import HomeAssistantError
-from homeassistant.helpers.service import async_register_platform_entity_service
 
-from .const import DOMAIN
 from .entity import EurekaEntity
 from .protocol.commands import FAN_LEVELS
 
 
+PARALLEL_UPDATES = 1
+
+
 async def async_setup_entry(hass, entry, async_add_entities):
     async_add_entities([EurekaVacuum(entry.runtime_data, entry)])
-    if not hass.services.has_service(DOMAIN, "clean_rooms"):
-        async_register_platform_entity_service(
-            hass,
-            DOMAIN,
-            "clean_rooms",
-            entity_domain="vacuum",
-            schema={
-                vol.Required("rooms"): vol.All(
-                    [vol.All(int, vol.Range(min=1, max=255))], vol.Length(min=1, max=10)
-                ),
-                vol.Optional("repeats", default=1): vol.All(
-                    int, vol.Range(min=1, max=3)
-                ),
-            },
-            func="async_clean_rooms",
-        )
 
 
 class EurekaVacuum(EurekaEntity, StateVacuumEntity):
