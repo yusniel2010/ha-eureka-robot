@@ -7,7 +7,7 @@ Control and monitor a **Eureka J15 Pro Ultra** from Home Assistant **over your l
 
 [Versión en español más abajo](#versión-en-español)
 
-> Unofficial project. Not affiliated with or endorsed by Eureka or Midea. Only the J15 Pro Ultra has been tested.
+> **Work in progress.** Unofficial project, not affiliated with or endorsed by Eureka or Midea. Only the J15 Pro Ultra has been tested: if you have another Eureka model, please try it and [open an issue](https://github.com/yusniel2010/ha-eureka-robot/issues) with what works and what doesn't.
 
 ## Requirements
 
@@ -94,6 +94,8 @@ If the robot's rooms change (for example after re-mapping your home in the Eurek
 
 ## Dashboard card
 
+Shows status, battery, cleaning controls, mode/water/suction, station actions and room chips (with your area names once mapped). Robot and station faults appear in a banner at the top; when the clean-water tank is empty, the banner offers **Check water**.
+
 1. Set up the integration first. The card is registered automatically; you don't need to add a resource.
 2. Fully reload the browser (on the mobile app, close and reopen it).
 3. Edit a dashboard → **Add card** → search **Eureka Robot** → pick your vacuum entity.
@@ -167,7 +169,7 @@ Bug reports, ideas and pull requests are welcome in this repository: [open an is
 
 Controla y monitorea una **Eureka J15 Pro Ultra** desde Home Assistant **por tu red local**: sin cuenta de Eureka, sin nube y sin token. Incluye una tarjeta para el dashboard.
 
-> Proyecto no oficial. No está afiliado ni respaldado por Eureka ni Midea. Solo se ha probado con la J15 Pro Ultra.
+> **En desarrollo.** Proyecto no oficial, no afiliado ni respaldado por Eureka ni Midea. Solo se ha probado con la J15 Pro Ultra: si tienes otro modelo de Eureka, pruébala y [abre un issue](https://github.com/yusniel2010/ha-eureka-robot/issues) con lo que funciona y lo que no.
 
 ## Requisitos
 
@@ -253,6 +255,8 @@ data:
 Si cambian las habitaciones del robot (por ejemplo, al volver a mapear la casa en la app de Eureka), Home Assistant muestra una reparación para asignar las áreas de nuevo.
 
 ## Tarjeta del dashboard
+
+Muestra estado, batería, controles de limpieza, modo/agua/succión, acciones de la base y botones de habitaciones (con el nombre de tus áreas una vez asignadas). Las fallas del robot y de la base aparecen en un aviso arriba; si el tanque de agua limpia está vacío, el aviso ofrece **Revisar agua**.
 
 1. Configura primero la integración. La tarjeta se registra sola; no hace falta añadir un recurso.
 2. Recarga el navegador por completo (en la app móvil, ciérrala y vuelve a abrirla).
