@@ -82,7 +82,10 @@ class Transport:
                             await writer.wait_closed()
                     except (OSError, TimeoutError):
                         pass
-            if sent and frame[9] == 2:
+            # A reset before any reply means the robot refused the connection
+            # (busy slot) without executing the command, so it is safe to retry.
+            refused = last_error == "ConnectionResetError" and received_bytes == 0
+            if sent and frame[9] == 2 and not refused:
                 raise EurekaOutcomeUnknownError(
                     "Command outcome is unknown; "
                     f"{last_error}; received={received_bytes} bytes, valid_frames={received_frames}. "
