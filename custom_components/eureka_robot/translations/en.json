@@ -47,6 +47,13 @@
       },
       "scan_progress": {
         "title": "Searching for vacuum"
+      },
+      "discovery_confirm": {
+        "title": "Eureka robot found",
+        "description": "An Eureka robot was found at {host}. Only the J15 Pro Ultra has been tested; confirm the model to add it.",
+        "data": {
+          "confirm_model": "This is an Eureka J15 Pro Ultra"
+        }
       }
     },
     "error": {
@@ -57,11 +64,14 @@
     },
     "abort": {
       "already_configured": "Robot already configured.",
-      "reconfigure_successful": "Robot address updated."
+      "reconfigure_successful": "Robot address updated.",
+      "not_eureka_robot": "The device does not answer like an Eureka robot.",
+      "wrong_device": "That address belongs to a different robot. Add it as a new integration instead."
     },
     "progress": {
       "scanning": "Searching Home Assistant networks: {networks}. Please wait while devices are checked."
-    }
+    },
+    "flow_title": "Eureka robot ({host})"
   },
   "entity": {
     "sensor": {

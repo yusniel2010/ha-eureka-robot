@@ -34,7 +34,9 @@ Setup fields:
 | Network (advanced) | A private network in CIDR form (for example `192.168.20.0/24`) when the robot is on a different, routed network. |
 | Confirm model | Required: only the J15 Pro Ultra has been tested. |
 
-If the robot's IP changes, open the integration and use **Reconfigure**.
+**Automatic discovery:** when the robot joins the network (or renews its IP), Home Assistant can show it under **Discovered** in **Devices & services**; confirm the model to add it.
+
+**IP changes:** the integration identifies the robot by its MAC address, so if the robot gets a new IP, Home Assistant updates it automatically when it sees the robot on the network. You can also open the integration and use **Reconfigure**.
 
 ### Manual installation
 
@@ -176,7 +178,9 @@ Campos de configuración:
 | Red (avanzado) | Una red privada en formato CIDR (por ejemplo `192.168.20.0/24`) cuando el robot está en otra red enrutada. |
 | Confirmar modelo | Obligatorio: solo se ha probado con la J15 Pro Ultra. |
 
-Si cambia la IP del robot, abre la integración y usa **Reconfigurar**.
+**Descubrimiento automático:** cuando el robot se conecta a la red (o renueva su IP), Home Assistant puede mostrarlo en **Descubiertos** dentro de **Dispositivos y servicios**; confirma el modelo para añadirlo.
+
+**Cambios de IP:** la integración identifica al robot por su dirección MAC, así que si recibe una IP nueva, Home Assistant la actualiza sola al verlo en la red. También puedes abrir la integración y usar **Reconfigurar**.
 
 ### Instalación manual
 

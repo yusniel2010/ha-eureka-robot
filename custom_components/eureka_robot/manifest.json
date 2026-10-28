@@ -11,10 +11,18 @@
     "network",
     "lovelace"
   ],
+  "dhcp": [
+    {
+      "macaddress": "305223*"
+    },
+    {
+      "registered_devices": true
+    }
+  ],
   "documentation": "https://github.com/yusniel2010/ha-eureka-robot",
   "integration_type": "device",
   "iot_class": "local_polling",
+  "issue_tracker": "https://github.com/yusniel2010/ha-eureka-robot/issues",
   "requirements": [],
-  "version": "0.3.0",
-  "issue_tracker": "https://github.com/yusniel2010/ha-eureka-robot/issues"
+  "version": "0.3.0"
 }

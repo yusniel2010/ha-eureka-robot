@@ -47,6 +47,13 @@
       },
       "scan_progress": {
         "title": "Buscando aspiradora"
+      },
+      "discovery_confirm": {
+        "title": "Robot Eureka encontrado",
+        "description": "Se encontró un robot Eureka en {host}. Solo se ha probado con la J15 Pro Ultra; confirma el modelo para añadirlo.",
+        "data": {
+          "confirm_model": "Es una Eureka J15 Pro Ultra"
+        }
       }
     },
     "error": {
@@ -57,11 +64,14 @@
     },
     "abort": {
       "already_configured": "Robot ya configurado.",
-      "reconfigure_successful": "Dirección actualizada."
+      "reconfigure_successful": "Dirección actualizada.",
+      "not_eureka_robot": "El dispositivo no responde como un robot Eureka.",
+      "wrong_device": "Esa dirección es de otro robot. Añádelo como una integración nueva."
     },
     "progress": {
       "scanning": "Buscando en las redes de Home Assistant: {networks}. Espera mientras se comprueban los dispositivos."
-    }
+    },
+    "flow_title": "Robot Eureka ({host})"
   },
   "entity": {
     "sensor": {

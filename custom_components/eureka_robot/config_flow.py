@@ -7,11 +7,15 @@ import voluptuous as vol
 from homeassistant.components import network
 from homeassistant.config_entries import ConfigFlow
 from homeassistant.const import CONF_HOST
+from homeassistant.helpers.device_registry import format_mac
 
 from .const import DOMAIN
 from .protocol.client import EurekaClient
 from .protocol.discovery import discover_networks, networks_from_adapters, parse_network
 from .protocol.errors import EurekaError
+from .util import is_mac, mac_for_host
+
+TITLE = "Eureka J15 Pro Ultra"
 
 
 def normalize_host(value: str) -> str:
@@ -39,6 +43,40 @@ class EurekaConfigFlow(ConfigFlow, domain=DOMAIN):
         self._candidates = []
         self._scan_network = ""
         self._scan_networks = []
+        self._discovered_host = ""
+
+    async def _unique_id_for(self, host):
+        """MAC when the ARP cache knows it (stable across IP changes), else host."""
+        return await self.hass.async_add_executor_job(mac_for_host, host) or host
+
+    async def async_step_dhcp(self, discovery_info):
+        host = discovery_info.ip
+        await self.async_set_unique_id(format_mac(discovery_info.macaddress))
+        self._abort_if_unique_id_configured(updates={CONF_HOST: host})
+        if any(e.data[CONF_HOST] == host for e in self._async_current_entries()):
+            return self.async_abort(reason="already_configured")
+        try:
+            await EurekaClient(host).status()
+        except (EurekaError, OSError, TimeoutError):
+            return self.async_abort(reason="not_eureka_robot")
+        self._discovered_host = host
+        self.context["title_placeholders"] = {"host": host}
+        return await self.async_step_discovery_confirm()
+
+    async def async_step_discovery_confirm(self, user_input=None):
+        errors = {}
+        if user_input is not None:
+            if user_input.get("confirm_model"):
+                return self.async_create_entry(
+                    title=TITLE, data={CONF_HOST: self._discovered_host}
+                )
+            errors["base"] = "confirm_model"
+        return self.async_show_form(
+            step_id="discovery_confirm",
+            data_schema=vol.Schema({vol.Required("confirm_model", default=False): bool}),
+            description_placeholders={"host": self._discovered_host},
+            errors=errors,
+        )
 
     async def async_step_scan(self, user_input=None):
         """Infer networks from every enabled HA adapter; no CIDR form."""
@@ -149,15 +187,22 @@ class EurekaConfigFlow(ConfigFlow, domain=DOMAIN):
                 except (EurekaError, OSError, TimeoutError):
                     errors["base"] = "cannot_connect"
                 else:
+                    unique_id = await self._unique_id_for(host)
                     if entry:
+                        if (
+                            is_mac(entry.unique_id)
+                            and is_mac(unique_id)
+                            and unique_id != entry.unique_id
+                        ):
+                            return self.async_abort(reason="wrong_device")
+                        if not is_mac(unique_id) and is_mac(entry.unique_id):
+                            unique_id = entry.unique_id
                         return self.async_update_reload_and_abort(
-                            entry, data_updates={CONF_HOST: host}, unique_id=host
+                            entry, data_updates={CONF_HOST: host}, unique_id=unique_id
                         )
-                    await self.async_set_unique_id(host)
-                    self._abort_if_unique_id_configured()
-                    return self.async_create_entry(
-                        title="Eureka J15 Pro Ultra", data={CONF_HOST: host}
-                    )
+                    await self.async_set_unique_id(unique_id)
+                    self._abort_if_unique_id_configured(updates={CONF_HOST: host})
+                    return self.async_create_entry(title=TITLE, data={CONF_HOST: host})
         default = entry.data[CONF_HOST] if entry else ""
         return self.async_show_form(
             step_id=step_id,

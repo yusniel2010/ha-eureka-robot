@@ -14,6 +14,7 @@ from .const import DOMAIN, PLATFORMS
 from .coordinator import EurekaCoordinator
 from .frontend import CARD_PATH, CARD_URL, async_register_card_resource
 from .protocol.client import EurekaClient
+from .util import is_mac, mac_for_host
 
 
 async def async_setup(hass: HomeAssistant, config: dict) -> bool:
@@ -47,9 +48,23 @@ async def async_setup(hass: HomeAssistant, config: dict) -> bool:
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     coordinator = EurekaCoordinator(hass, entry, EurekaClient(entry.data[CONF_HOST]))
     await coordinator.async_config_entry_first_refresh()
+    await _async_migrate_unique_id_to_mac(hass, entry)
     entry.runtime_data = coordinator
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
     return True
+
+
+async def _async_migrate_unique_id_to_mac(hass: HomeAssistant, entry: ConfigEntry) -> None:
+    """Older entries used the IP as unique_id; switch to the MAC once it is known."""
+    if is_mac(entry.unique_id):
+        return
+    mac = await hass.async_add_executor_job(mac_for_host, entry.data[CONF_HOST])
+    if mac and not any(
+        other.unique_id == mac
+        for other in hass.config_entries.async_entries(DOMAIN)
+        if other.entry_id != entry.entry_id
+    ):
+        hass.config_entries.async_update_entry(entry, unique_id=mac)
 
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
