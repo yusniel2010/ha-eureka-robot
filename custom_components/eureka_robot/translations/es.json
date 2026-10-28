@@ -5,7 +5,7 @@
       "user": {
         "title": "Eureka Robot (Local)",
         "menu_options": {
-          "scan": "Buscar en la red local",
+          "scan": "Buscar automáticamente",
           "manual": "Introducir IP manualmente"
         }
       },
@@ -21,13 +21,6 @@
           "host": "IP o nombre de host"
         }
       },
-      "scan": {
-        "title": "Buscar aspiradora",
-        "description": "Busca respuestas B8 en una subred privada, máximo 256 direcciones. Solo envía consultas de estado. Si está en otra VLAN, introduce su subred o usa la IP manual.",
-        "data": {
-          "network": "Subred IPv4 (CIDR)"
-        }
-      },
       "choose_device": {
         "title": "Seleccionar aspiradora",
         "description": "Una respuesta B8 confirma el protocolo, no el modelo. Confirma que el dispositivo seleccionado es tu Eureka J15 Pro Ultra.",
@@ -38,17 +31,28 @@
       },
       "no_devices": {
         "title": "No se encontraron aspiradoras nuevas",
-        "description": "Comprueba que el robot está encendido, la subred es correcta y HA puede acceder al puerto TCP 12127. Prueba la IP manual o vuelve a buscar.",
+        "description": "No se encontró una aspiradora nueva en las redes accesibles desde Home Assistant. Comprueba que el robot está encendido. Cierra otros clientes locales y vuelve a buscar. Si HA está en Docker o el robot está en otra VLAN, usa su IP o la búsqueda avanzada.",
         "menu_options": {
-          "scan": "Buscar en la red local",
-          "manual": "Introducir IP manualmente"
+          "scan": "Buscar automáticamente",
+          "manual": "Introducir IP manualmente",
+          "network": "Buscar en otra red (avanzado)"
         }
+      },
+      "network": {
+        "title": "Buscar en otra red",
+        "description": "Opcional: indica una subred privada accesible desde HA. Máximo 1024 direcciones (/22 o menor).",
+        "data": {
+          "network": "Subred IPv4 (CIDR)"
+        }
+      },
+      "scan_progress": {
+        "title": "Buscando aspiradora"
       }
     },
     "error": {
       "cannot_connect": "No se pudo conectar al robot.",
       "invalid_host": "Introduce una IP o nombre de host, sin URL ni puerto.",
-      "invalid_network": "Usa una subred IPv4 privada de máximo 256 direcciones (/24 o menor).",
+      "invalid_network": "Usa una subred IPv4 privada de máximo 1024 direcciones (/22 o menor).",
       "confirm_model": "Confirma el modelo antes de continuar."
     },
     "abort": {
@@ -56,7 +60,7 @@
       "reconfigure_successful": "Dirección actualizada."
     },
     "progress": {
-      "scanning": "Buscando dispositivos locales…"
+      "scanning": "Buscando en las redes de Home Assistant: {networks}. Espera mientras se comprueban los dispositivos."
     }
   },
   "entity": {

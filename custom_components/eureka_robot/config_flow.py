@@ -10,7 +10,7 @@ from homeassistant.const import CONF_HOST
 
 from .const import DOMAIN
 from .protocol.client import EurekaClient
-from .protocol.discovery import discover_network, parse_network
+from .protocol.discovery import discover_networks, networks_from_adapters, parse_network
 from .protocol.errors import EurekaError
 
 
@@ -38,40 +38,37 @@ class EurekaConfigFlow(ConfigFlow, domain=DOMAIN):
         self._scan_task = None
         self._candidates = []
         self._scan_network = ""
+        self._scan_networks = []
 
     async def async_step_scan(self, user_input=None):
+        """Infer networks from every enabled HA adapter; no CIDR form."""
+        self._scan_networks = networks_from_adapters(
+            await network.async_get_adapters(self.hass)
+        )
+        return await self._start_scan(self._scan_networks)
+
+    async def _start_scan(self, networks):
+        self._scan_networks = networks
+        self._scan_task = self.hass.async_create_background_task(
+            discover_networks(networks), "Eureka LAN discovery"
+        )
+        return await self.async_step_scan_progress()
+
+    async def async_step_network(self, user_input=None):
+        """Optional advanced fallback for routed networks, never the default."""
         errors = {}
         if user_input:
             try:
-                parse_network(user_input["network"])
+                subnet = parse_network(user_input["network"])
             except ValueError:
                 errors["network"] = "invalid_network"
             else:
-                self._scan_network = user_input["network"]
-                self._scan_task = self.hass.async_create_background_task(
-                    discover_network(self._scan_network), "Eureka LAN discovery"
-                )
-                return await self.async_step_scan_progress()
-        if not self._scan_network:
-            for adapter in await network.async_get_adapters(self.hass):
-                if adapter["enabled"]:
-                    for address in adapter["ipv4"]:
-                        ip = ipaddress.ip_address(address["address"])
-                        if ip.is_private and not ip.is_loopback:
-                            self._scan_network = str(
-                                ipaddress.ip_network(f"{ip}/24", strict=False)
-                            )
-                            break
-                    if self._scan_network:
-                        break
+                self._scan_network = str(subnet)
+                return await self._start_scan([self._scan_network])
         return self.async_show_form(
-            step_id="scan",
+            step_id="network",
             data_schema=vol.Schema(
-                {
-                    vol.Required(
-                        "network", default=self._scan_network or "192.168.1.0/24"
-                    ): str
-                }
+                {vol.Required("network", default=self._scan_network or ""): str}
             ),
             errors=errors,
         )
@@ -83,9 +80,12 @@ class EurekaConfigFlow(ConfigFlow, domain=DOMAIN):
             except (OSError, ValueError):
                 self._candidates = []
             configured = {e.data[CONF_HOST] for e in self._async_current_entries()}
+            found_any = bool(self._candidates)
             self._candidates = [
                 host for host in self._candidates if host not in configured
             ]
+            if found_any and not self._candidates:
+                return self.async_abort(reason="already_configured")
             return self.async_show_progress_done(
                 next_step_id="choose_device" if self._candidates else "no_devices"
             )
@@ -93,11 +93,14 @@ class EurekaConfigFlow(ConfigFlow, domain=DOMAIN):
             step_id="scan_progress",
             progress_action="scanning",
             progress_task=self._scan_task,
+            description_placeholders={
+                "networks": ", ".join(self._scan_networks) or "—"
+            },
         )
 
     async def async_step_no_devices(self, user_input=None):
         return self.async_show_menu(
-            step_id="no_devices", menu_options=["scan", "manual"]
+            step_id="no_devices", menu_options=["scan", "manual", "network"]
         )
 
     async def async_step_choose_device(self, user_input=None):
