@@ -1,10 +1,13 @@
 """Short-lived local TCP requests; send immediately after connecting."""
 
 import asyncio
+import logging
 import random
 
-from .errors import EurekaConnectionError
+from .errors import EurekaConnectionError, EurekaOutcomeUnknownError
 from .frame import FrameParser
+
+_LOGGER = logging.getLogger(__name__)
 
 
 class Transport:
@@ -32,16 +35,23 @@ class Transport:
         for attempt in range(self.attempts):
             writer = None
             sent = False
+            received_bytes = 0
+            received_frames = 0
             try:
                 async with asyncio.timeout(self.connect_timeout):
                     reader, writer = await asyncio.open_connection(self.host, self.port)
                     sent = True
+                    _LOGGER.debug("B8 TX attempt=%d frame=%s", attempt + 1, frame.hex())
                     writer.write(frame)
                     await writer.drain()
                 parser = FrameParser()
                 async with asyncio.timeout(self.timeout):
                     while data := await reader.read(4096):
+                        received_bytes += len(data)
+                        _LOGGER.debug("B8 RX chunk=%s", data[:256].hex())
                         for reply in parser.feed(data):
+                            received_frames += 1
+                            _LOGGER.debug("B8 RX valid frame=%s", reply.hex())
                             if (
                                 reply[9] == frame[9]
                                 or (
@@ -73,8 +83,10 @@ class Transport:
                     except (OSError, TimeoutError):
                         pass
             if sent and frame[9] == 2:
-                raise EurekaConnectionError(
-                    "Command outcome is unknown; inspect robot status before retrying"
+                raise EurekaOutcomeUnknownError(
+                    "Command outcome is unknown; "
+                    f"{last_error}; received={received_bytes} bytes, valid_frames={received_frames}. "
+                    "Inspect robot status before retrying"
                 )
             if not sent and not self.retry_connect_failures:
                 break

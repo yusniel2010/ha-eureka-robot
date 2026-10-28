@@ -26,7 +26,7 @@ Reserva la IP del robot en el router. Si cambia, usa **Reconfigurar** en la inte
 ## Añadir la tarjeta al dashboard
 
 1. Configura primero la integración; descargarla desde HACS no completa este paso.
-   Desde v0.2.2 el recurso de la tarjeta se registra automáticamente; no tienes que añadirlo en Recursos.
+   El recurso de la tarjeta se registra automáticamente; no tienes que añadirlo en Recursos.
 2. Recarga completamente el navegador. En la aplicación móvil, ciérrala y vuelve a abrirla.
 3. Abre el dashboard → **Editar → Añadir tarjeta**.
 4. Busca **Eureka Robot**, selecciónala y elige la entidad de tu aspiradora.
@@ -46,17 +46,17 @@ Sustituye `vacuum.eureka_j15_pro_ultra` por el identificador real creado por tu 
 2. Activa **Modo avanzado** en tu perfil de Home Assistant si no aparece el menú de recursos.
 3. Ve a **Ajustes → Paneles de control → ⋮ → Recursos → Añadir recurso**.
 4. Introduce:
-   - **URL:** `/eureka_robot/eureka-robot-card.js?v=0.2.2`
+   - **URL:** `/eureka_robot/eureka-robot-card.js?v=0.2.3`
    - **Tipo:** **Módulo JavaScript**.
 5. Guarda y recarga completamente el navegador (`Ctrl+Shift+R` / `Cmd+Shift+R`).
 6. Vuelve a añadir la tarjeta mediante el YAML anterior.
 
-Para comprobar que el archivo está disponible, abre `/eureka_robot/eureka-robot-card.js?v=0.2.2` detrás de la dirección habitual de tu Home Assistant. Debe mostrarse código JavaScript. Si aparece **404**, comprueba la instalación y reinicia Home Assistant antes de volver a intentarlo.
+Para comprobar que el archivo está disponible, abre `/eureka_robot/eureka-robot-card.js?v=0.2.3` detrás de la dirección habitual de tu Home Assistant. Debe mostrarse código JavaScript. Si aparece **404**, comprueba la instalación y reinicia Home Assistant antes de volver a intentarlo.
 
 Si administras los recursos en YAML, añade este elemento a tu lista `lovelace.resources` existente:
 
 ```yaml
-- url: /eureka_robot/eureka-robot-card.js?v=0.2.2
+- url: /eureka_robot/eureka-robot-card.js?v=0.2.3
   type: module
 ```
 
@@ -74,6 +74,6 @@ No añadas el mismo recurso varias veces.
 2. Restart Home Assistant.
 3. Click **Add integration**, or open **Settings → Devices & services → Add integration → Eureka Robot (Local)**.
 4. Choose **Search automatically**; Home Assistant detects its local networks without asking for a subnet. Select the robot and confirm its model. Manual IP and advanced network search remain available if needed. Complete setup and verify the vacuum entity exists.
-5. The card resource registers automatically in v0.2.2+. Reload the browser, edit your dashboard and add the **Eureka Robot** card. Select your vacuum entity.
+5. The card resource registers automatically. Reload the browser, edit your dashboard and add the **Eureka Robot** card. Select your vacuum entity.
 
-If the card is missing, add `/eureka_robot/eureka-robot-card.js?v=0.2.2` under **Settings → Dashboards → ⋮ → Resources** as a **JavaScript module**, then reload the browser. The resource URL must return JavaScript, not 404. Use the manual card YAML above with your actual entity ID.
+If the card is missing, add `/eureka_robot/eureka-robot-card.js?v=0.2.3` under **Settings → Dashboards → ⋮ → Resources** as a **JavaScript module**, then reload the browser. The resource URL must return JavaScript, not 404. Use the manual card YAML above with your actual entity ID.

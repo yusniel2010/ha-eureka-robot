@@ -1,5 +1,6 @@
 """Poll local state and refresh optional room data without cloud access."""
 
+import asyncio
 import logging
 import time
 from datetime import timedelta
@@ -8,7 +9,8 @@ from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
 from .const import DOMAIN
-from .protocol.errors import EurekaError
+from .protocol.commands import CLEAN_MODES, FAN_LEVELS
+from .protocol.errors import EurekaError, EurekaOutcomeUnknownError
 from .protocol.status import Status
 
 _LOGGER = logging.getLogger(__name__)
@@ -58,15 +60,50 @@ class EurekaCoordinator(DataUpdateCoordinator[Status]):
     async def command(self, action, value=None):
         if action in STATION_ACTIONS and self.data.activity != "docked":
             raise HomeAssistantError("Robot must be on the station")
+        before = self.data
         try:
             if value is None:
                 await self.client.command(action)
             else:
                 await self.client.command(action, value)
+        except EurekaOutcomeUnknownError as err:
+            if await self._confirm_outcome(action, value, before):
+                return
+            await self.async_request_refresh()
+            raise HomeAssistantError(str(err)) from err
         except EurekaError as err:
             await self.async_request_refresh()
             raise HomeAssistantError(str(err)) from err
         await self.async_request_refresh()
+
+    async def _confirm_outcome(self, action, value, before):
+        """Read back a changed target state; never resend an uncertain command."""
+        try:
+            async with asyncio.timeout(8):
+                for attempt in range(3):
+                    if attempt:
+                        await asyncio.sleep(1)
+                    try:
+                        after = await self.client.status()
+                    except EurekaError:
+                        continue
+                    self.failures = 0
+                    self.update_interval = timedelta(
+                        seconds=3 if after.active or after.has_task else 10
+                    )
+                    self.async_set_updated_data(after)
+                    if _observed_transition(action, value, before, after):
+                        _LOGGER.debug(
+                            "Command %s verified by status transition after missing acknowledgement",
+                            action,
+                        )
+                        return True
+        except TimeoutError:
+            pass
+        _LOGGER.debug(
+            "Command %s could not be verified after missing acknowledgement", action
+        )
+        return False
 
     async def clean_rooms(self, rooms, repeats):
         if not self.rooms or any(room not in self.rooms for room in rooms):
@@ -83,3 +120,41 @@ class EurekaCoordinator(DataUpdateCoordinator[Status]):
             await self.async_request_refresh()
             raise HomeAssistantError(str(err)) from err
         await self.async_request_refresh()
+
+
+def _observed_transition(action, value, before, after):
+    """Require a new reported target state, not a pre-existing condition."""
+
+    if action not in ("fan", "water", "mode") and (
+        after.activity == "error" or after.robot_fault or after.station_fault
+    ):
+        return False
+
+    def target(status):
+        if action == "wash":
+            return status.station_status == 3 or status.work_status in (13, 14)
+        if action == "station_clean":
+            return status.station_status == 9
+        if action == "empty":
+            return status.station_status == 10
+        if action == "dry":
+            return status.station_status in (4, 5) or status.work_status == 16
+        if action == "fan":
+            return status.fan == FAN_LEVELS.get(value)
+        if action == "water":
+            return status.water == value
+        if action == "mode":
+            return status.mop_mode == CLEAN_MODES.get(value)
+        if action == "start":
+            return status.has_task is True
+        if action == "resume":
+            return status.activity == "cleaning" and status.has_task is True
+        if action == "pause":
+            return status.activity == "paused"
+        if action == "stop":
+            return status.has_task is False and status.activity in ("idle", "docked")
+        if action == "dock":
+            return status.activity in ("returning", "docked")
+        return False
+
+    return not target(before) and target(after)

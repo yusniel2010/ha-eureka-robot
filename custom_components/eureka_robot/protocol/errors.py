@@ -15,3 +15,7 @@ class EurekaProtocolError(EurekaError, ValueError):
 
 class EurekaCommandError(EurekaError, ValueError):
     """Robot rejected a command."""
+
+
+class EurekaOutcomeUnknownError(EurekaConnectionError):
+    """Command may have been delivered, but no acknowledgement was received."""
