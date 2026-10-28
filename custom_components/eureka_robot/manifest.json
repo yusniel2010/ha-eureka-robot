@@ -1,9 +1,6 @@
 {
   "domain": "eureka_robot",
   "name": "Eureka Robot (Local)",
-  "categories": [
-    "appliances_cleaning.cleaning"
-  ],
   "codeowners": [
     "@yusniel2010"
   ],

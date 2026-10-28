@@ -8,6 +8,7 @@ from homeassistant.components.http import StaticPathConfig
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_HOST
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers.service import async_register_platform_entity_service
 
 from .const import DOMAIN, PLATFORMS
@@ -15,6 +16,8 @@ from .coordinator import EurekaCoordinator
 from .frontend import CARD_PATH, CARD_URL, async_register_card_resource
 from .protocol.client import EurekaClient
 from .util import is_mac, mac_for_host
+
+CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)
 
 
 async def async_setup(hass: HomeAssistant, config: dict) -> bool:
