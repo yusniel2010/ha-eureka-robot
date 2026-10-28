@@ -8,12 +8,13 @@
   "dependencies": [
     "http",
     "frontend",
-    "network"
+    "network",
+    "lovelace"
   ],
   "documentation": "https://github.com/yusniel2010/ha-eureka-robot",
   "integration_type": "device",
   "iot_class": "local_polling",
   "requirements": [],
-  "version": "0.2.0",
+  "version": "0.2.1",
   "issue_tracker": "https://github.com/yusniel2010/ha-eureka-robot/issues"
 }

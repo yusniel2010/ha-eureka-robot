@@ -8,14 +8,15 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_HOST
 from homeassistant.core import HomeAssistant
 
-from .const import DOMAIN, PLATFORMS, VERSION
+from .const import PLATFORMS
 from .coordinator import EurekaCoordinator
+from .frontend import CARD_PATH, CARD_URL, async_register_card_resource
 from .protocol.client import EurekaClient
 
 
 async def async_setup(hass: HomeAssistant, config: dict) -> bool:
     """Serve the bundled card once per HA process."""
-    url = f"/{DOMAIN}/eureka-robot-card.js"
+    url = CARD_PATH
     await hass.http.async_register_static_paths(
         [
             StaticPathConfig(
@@ -23,7 +24,8 @@ async def async_setup(hass: HomeAssistant, config: dict) -> bool:
             )
         ]
     )
-    add_extra_js_url(hass, f"{url}?v={VERSION}")
+    await async_register_card_resource(hass)
+    add_extra_js_url(hass, CARD_URL)
     return True
 
 
