@@ -15,7 +15,8 @@ class EurekaRobotCard extends HTMLElement {
   // and wait while the user has a select open.
   set hass(hass) {
     this._hass=hass;
-    const sig=this._signature();
+    let sig;
+    try { sig=this._signature(); } catch (err) { sig=undefined; }
     if (sig===this._sig) return;
     if (this._picking) { this._stale=true; return; }
     this.render();
@@ -32,7 +33,16 @@ class EurekaRobotCard extends HTMLElement {
   }
   _pickDone() { this._picking=false; if (this._stale) { this._stale=false; this.render(); } }
   getCardSize() { return 8; }
+  // HA swaps the card for a bare "Configuration error" if setting hass throws, and
+  // keeps it until the dashboard reloads; never let a render error escape.
   render() {
+    try { this._render(); }
+    catch (err) { console.error('eureka-robot-card', err); this._sig=undefined; }
+  }
+  _fmt(state) {
+    try { return this._hass.formatEntityState?.(state) ?? state.state; } catch (err) { return state.state; }
+  }
+  _render() {
     if (!this._hass || !this._config) return;
     this._sig=this._signature();
     const h=this._hass, root=this.shadowRoot;
@@ -72,12 +82,12 @@ class EurekaRobotCard extends HTMLElement {
     const alert=root.querySelector('.alert'), shortage=entity('water_shortage')?.state==='on';
     if (faults.length || shortage) {
       alert.hidden=false;alert.setAttribute('role','alert');
-      alert.querySelector('span').textContent=faults.map(e=>h.formatEntityState?.(e) ?? e.state).join(' · ') || (h.formatEntityState?.(entity('water_shortage')) ?? '');
+      alert.querySelector('span').textContent=faults.map(e=>this._fmt(e)).join(' · ') || this._fmt(entity('water_shortage'));
       const check=find('check_water');
       if (shortage && check) addButton(alert,w.checkWater,()=>this.call('button','press',check),s?.state==='docked' && h.states[check]?.state!=='unavailable',true);
     }
     const actions=root.querySelector('.actions');
-    if (s?.state==='cleaning' && (features&4)) addButton(actions,w.pause,()=>this.call('vacuum','pause',this._config.entity),true,true);
+    if (['cleaning','returning'].includes(s?.state) && (features&4)) addButton(actions,w.pause,()=>this.call('vacuum','pause',this._config.entity),true,true);
     else if (features&8192) addButton(actions,w.start,()=>this.call('vacuum','start',this._config.entity),true,true);
     if (features&8) addButton(actions,w.stop,()=>this.call('vacuum','stop',this._config.entity));
     if (features&16) addButton(actions,w.dock,()=>this.call('vacuum','return_to_base',this._config.entity));
@@ -103,7 +113,7 @@ class EurekaRobotCard extends HTMLElement {
     if ((features&32) && s?.attributes.fan_speed_list?.length) addSelect(w.fan,s.attributes.fan_speed_list,s.attributes.fan_speed,value=>this.call('vacuum','set_fan_speed',this._config.entity,{fan_speed:value}));
     const station=root.querySelector('.station');
     const stationLabels=es ? {idle:'En espera',charging:'Cargando',filling_water:'Llenando agua',washing:'Lavando',drying:'Secando',air_drying:'Ventilando',error:'Error',charged:'Cargado',sleeping:'En reposo',self_cleaning:'Limpiando bandeja',emptying:'Vaciando polvo',cutting_hair:'Cortando pelo',waiting_to_charge:'Esperando carga',draining:'Vaciando agua'} : {};
-    const st=entity('station_status');station.querySelector('p').textContent=known(st) ? stationLabels[st.state] || (h.formatEntityState?.(st) ?? st.state) : '';
+    const st=entity('station_status');station.querySelector('p').textContent=known(st) ? stationLabels[st.state] || this._fmt(st) : '';
     for (const [role,label] of [['wash_mops',w.wash],['empty_dust',w.empty],['dry_mops',w.dry],['stop_drying',w.stopDry],['clean_station',w.basin]]) {
       const id=find(role);if (!id) continue;station.hidden=false;
       addButton(station.querySelector('.station-actions'),label,()=>this.call('button','press',id),s?.state==='docked' && h.states[id]?.state!=='unavailable');
