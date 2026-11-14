@@ -112,7 +112,7 @@ entity: vacuum.eureka_j15_pro_ultra
 1. Check that the integration is set up and the `vacuum` entity exists.
 2. Enable **Advanced mode** in your user profile if you don't see Resources.
 3. Go to **Settings → Dashboards → ⋮ → Resources → Add resource**:
-   - **URL:** `/eureka_robot/eureka-robot-card.js?v=0.5.2`
+   - **URL:** `/eureka_robot/eureka-robot-card.js?v=0.5.3`
    - **Type:** JavaScript module
 4. Save and fully reload the browser (`Ctrl+Shift+R` / `Cmd+Shift+R`).
 
@@ -121,7 +121,7 @@ Opening that URL on your Home Assistant address must show JavaScript code. A **4
 If you manage resources in YAML, add this once to `lovelace.resources`:
 
 ```yaml
-- url: /eureka_robot/eureka-robot-card.js?v=0.5.2
+- url: /eureka_robot/eureka-robot-card.js?v=0.5.3
   type: module
 ```
 
@@ -150,10 +150,6 @@ The robot and the Eureka app keep working; the integration doesn't change anythi
     logs:
       custom_components.eureka_robot: debug
   ```
-
-## Known issues
-
-- Pause now sends the work-mode pause command, but it hasn't been confirmed on a live robot yet: [#1](https://github.com/yusniel2010/ha-eureka-robot/issues/1). Please report if it doesn't pause yours.
 
 ## Contributing
 
@@ -274,7 +270,7 @@ entity: vacuum.eureka_j15_pro_ultra
 1. Comprueba que la integración esté configurada y que exista la entidad `vacuum`.
 2. Activa el **Modo avanzado** en tu perfil si no ves Recursos.
 3. Ve a **Ajustes → Paneles de control → ⋮ → Recursos → Añadir recurso**:
-   - **URL:** `/eureka_robot/eureka-robot-card.js?v=0.5.2`
+   - **URL:** `/eureka_robot/eureka-robot-card.js?v=0.5.3`
    - **Tipo:** Módulo JavaScript
 4. Guarda y recarga el navegador por completo (`Ctrl+Shift+R` / `Cmd+Shift+R`).
 
@@ -283,7 +279,7 @@ Esa URL, abierta en la dirección de tu Home Assistant, debe mostrar código Jav
 Si administras los recursos en YAML, añade esto una sola vez a `lovelace.resources`:
 
 ```yaml
-- url: /eureka_robot/eureka-robot-card.js?v=0.5.2
+- url: /eureka_robot/eureka-robot-card.js?v=0.5.3
   type: module
 ```
 
@@ -312,10 +308,6 @@ El robot y la app de Eureka siguen funcionando; la integración no cambia nada e
     logs:
       custom_components.eureka_robot: debug
   ```
-
-## Problemas conocidos
-
-- Pausar ahora manda el comando de pausa del modo de trabajo, pero aún no está confirmado con el robot real: [#1](https://github.com/yusniel2010/ha-eureka-robot/issues/1). Avisa si no pausa el tuyo.
 
 ## Contribuir
 

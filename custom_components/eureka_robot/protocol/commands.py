@@ -1,7 +1,8 @@
 """B8 commands reconstructed from the official J15 panel's encoder tables.
 
 Only the small operational subset is exposed. No reset, OTA or provisioning.
-Table-derived features still need physical local-transport validation.
+Every exposed command, including pause (aa010105) and resume (aa010106), has
+been verified on a live J15 Pro Ultra over the local transport.
 """
 
 from .errors import EurekaCommandError
